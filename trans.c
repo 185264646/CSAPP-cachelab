@@ -1,4 +1,4 @@
-/* 
+/*
  * trans.c - Matrix transpose B = A^T
  *
  * Each transpose function must have a prototype of the form:
@@ -6,27 +6,28 @@
  *
  * A transpose function is evaluated by counting the number of misses
  * on a 1KB direct mapped cache with a block size of 32 bytes.
- */ 
+ */
 #include <stdio.h>
+#include <stdlib.h>
 #include "cachelab.h"
 
 int is_transpose(int M, int N, int A[N][M], int B[M][N]);
 
-/* 
+/*
  * transpose_submit - This is the solution transpose function that you
  *     will be graded on for Part B of the assignment. Do not change
  *     the description string "Transpose submission", as the driver
  *     searches for that string to identify the transpose function to
- *     be graded. 
+ *     be graded.
  */
 char transpose_submit_desc[] = "Transpose submission";
 void transpose_submit(int M, int N, int A[N][M], int B[M][N])
 {
-	int i, j, line ,tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7, tmp8;
-	if(M == 32)
+	int i, j, line, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7, tmp8;
+	if (M == 32)
 		for (i = 0; i < N; i += 8)
-			for(j = 0; j < N; j += 8)
-				for(line = 0; line < 8; line++)
+			for (j = 0; j < N; j += 8)
+				for (line = 0; line < 8; line++)
 				{
 					tmp1 = A[i + line][j];
 					tmp2 = A[i + line][j + 1];
@@ -45,12 +46,12 @@ void transpose_submit(int M, int N, int A[N][M], int B[M][N])
 					B[j + 6][i + line] = tmp7;
 					B[j + 7][i + line] = tmp8;
 				}
-	else if(M == 64)
+	else if (M == 64)
 	{
 		for (i = 0; i < N; i += 4)
-			for(j = 0; j < N; j += 4)
-				if(i != j)
-					for(line = 0; line < 4; line++)
+			for (j = 0; j < N; j += 4)
+				if (!(i == j || (i % 8 ? j == i - 1 : j == i + 1)))
+					for (line = 0; line < 4; line++)
 					{
 						tmp1 = A[i + line][j];
 						tmp2 = A[i + line][j + 1];
@@ -61,26 +62,95 @@ void transpose_submit(int M, int N, int A[N][M], int B[M][N])
 						B[j + 2][i + line] = tmp3;
 						B[j + 3][i + line] = tmp4;
 					}
-		for (i = 0; i < N; i += 4)
+		for (i = 0; i < N; i += 8)
 		{
-			for(line = 0; line < 4; line++)
+			for (line = 0; line < 4; line++)
 			{
-				tmp1 = A[i + line][i];
-				tmp2 = A[i + line][i + 1];
-				tmp3 = A[i + line][i + 2];
-				tmp4 = A[i + line][i + 3];
-				B[i][i + line] = tmp1;
-				B[i + 1][i + line] = tmp2;
-				B[i + 2][i + line] = tmp3;
-				B[i + 3][i + line] = tmp4;				
+				for (j = 0; j < 4; j++)
+				{
+					B[i + j][i + line] = A[i + line][i + j];
+				}
 			}
+			tmp1 = A[i][i + 4];
+			tmp2 = A[i][i + 5];
+			tmp3 = A[i][i + 6];
+			tmp4 = A[i][i + 7];
+			tmp5 = A[i + 1][i + 4];
+			tmp6 = A[i + 1][i + 5];
+			tmp7 = A[i + 1][i + 6];
+			tmp8 = A[i + 1][i + 7];
+			B[i + 4][i] = tmp1;
+			B[i + 4][i + 1] = tmp5;
+			B[i + 5][i] = tmp2;
+			B[i + 5][i + 1] = tmp6;
+			tmp1 = A[i + 2][i + 4];
+			tmp2 = A[i + 2][i + 5];
+			tmp5 = A[i + 3][i + 4];
+			tmp6 = A[i + 3][i + 5];
+			B[i + 4][i + 2] = tmp1;
+			B[i + 4][i + 3] = tmp5;
+			B[i + 5][i + 2] = tmp2;
+			B[i + 5][i + 3] = tmp6;
+			tmp1 = A[i + 2][i + 6];
+			tmp2 = A[i + 2][i + 7];
+			tmp5 = A[i + 3][i + 6];
+			tmp6 = A[i + 3][i + 7];
+			B[i + 6][i + 2] = tmp1;
+			B[i + 7][i + 2] = tmp2;
+			B[i + 6][i] = tmp3;
+			B[i + 7][i] = tmp4;
+			B[i + 6][i + 3] = tmp5;
+			B[i + 7][i + 3] = tmp6;
+			B[i + 6][i + 1] = tmp7;
+			B[i + 7][i + 1] = tmp8;
+
+
+			for (line = 4; line < 8; line++)
+			{
+				for (j = 4; j < 8; j++)
+				{
+					B[i + j][i + line] = A[i + line][i + j];
+				}
+			}
+			tmp1 = A[i + 4][i];
+			tmp2 = A[i + 4][i + 1];
+			tmp3 = A[i + 4][i + 2];
+			tmp4 = A[i + 4][i + 3];
+			tmp5 = A[i + 5][i];
+			tmp6 = A[i + 5][i + 1];
+			tmp7 = A[i + 5][i + 2];
+			tmp8 = A[i + 5][i + 3];
+			B[i][i + 4] = tmp1;
+			B[i][i + 5] = tmp5;
+			B[i + 1][i + 4] = tmp2;
+			B[i + 1][i + 5] = tmp6;
+			tmp1 = A[i + 6][i];
+			tmp2 = A[i + 6][i + 1];
+			tmp5 = A[i + 7][i];
+			tmp6 = A[i + 7][i + 1];
+			B[i][i + 6] = tmp1;
+			B[i][i + 7] = tmp5;
+			B[i + 1][i + 6] = tmp2;
+			B[i + 1][i + 7] = tmp6;
+			tmp1 = A[i + 6][i + 2];
+			tmp2 = A[i + 6][i + 3];
+			tmp5 = A[i + 7][i + 2];
+			tmp6 = A[i + 7][i + 3];
+			B[i + 2][i + 6] = tmp1;
+			B[i + 3][i + 6] = tmp2;
+			B[i + 2][i + 4] = tmp3;
+			B[i + 3][i + 4] = tmp4;
+			B[i + 2][i + 7] = tmp5;
+			B[i + 3][i + 7] = tmp6;
+			B[i + 2][i + 5] = tmp7;
+			B[i + 3][i + 5] = tmp8;
 		}
 	}
 	else
 	{
 		for (i = 0; i < 56; i += 8) // copy the up-left 56x64 matrix
-			for(j = 0; j < 64; j += 8)
-				for(line = 0; line < 8; line++)
+			for (j = 0; j < 64; j += 8)
+				for (line = 0; line < 8; line++)
 				{
 					tmp1 = A[j + line][i];
 					tmp2 = A[j + line][i + 1];
@@ -100,7 +170,7 @@ void transpose_submit(int M, int N, int A[N][M], int B[M][N])
 					B[i + 7][j + line] = tmp8;
 				}
 		for (line = 0, i = 0; i < 64; i += 8) // copy the right 5x64 matrix
-			for(j = 56; j < 61; j ++)
+			for (j = 56; j < 61; j++)
 			{
 				tmp1 = A[i][j + line];
 				tmp2 = A[i + 1][j + line];
@@ -120,7 +190,7 @@ void transpose_submit(int M, int N, int A[N][M], int B[M][N])
 				B[j + line][i + 7] = tmp8;
 			}
 		for (i = 0; i < 56; i += 8) // copy the right 3x56 matrix
-			for(j = 64; j < 67; j ++)
+			for (j = 64; j < 67; j++)
 			{
 				tmp1 = A[j + line][i];
 				tmp2 = A[j + line][i + 1];
@@ -139,18 +209,18 @@ void transpose_submit(int M, int N, int A[N][M], int B[M][N])
 				B[i + 6][j + line] = tmp7;
 				B[i + 7][j + line] = tmp8;
 			}
-		for(i = 56; i < 61; i++) // copy the last 3x5 region
-			for(j = 64; j < 67; j++)
+		for (i = 56; i < 61; i++) // copy the last 3x5 region
+			for (j = 64; j < 67; j++)
 				B[i][j] = A[j][i];
 	}
 }
 
-/* 
+/*
  * You can define additional transpose functions below. We've defined
- * a simple one below to help you get started. 
- */ 
+ * a simple one below to help you get started.
+ */
 
-/* 
+/*
  * trans - A simple baseline transpose function, not optimized for the cache.
  */
 char trans_desc[] = "Simple row-wise scan transpose";
@@ -158,12 +228,14 @@ void trans(int M, int N, int A[N][M], int B[M][N])
 {
 	int i, j, tmp;
 
-	for (i = 0; i < N; i++) {
-		for (j = 0; j < M; j++) {
+	for (i = 0; i < N; i++)
+	{
+		for (j = 0; j < M; j++)
+		{
 			tmp = A[i][j];
 			B[j][i] = tmp;
 		}
-	}    
+	}
 }
 
 /*
@@ -176,14 +248,13 @@ void trans(int M, int N, int A[N][M], int B[M][N])
 void registerFunctions()
 {
 	/* Register your solution function */
-	registerTransFunction(transpose_submit, transpose_submit_desc); 
+	registerTransFunction(transpose_submit, transpose_submit_desc);
 
 	/* Register any additional transpose functions */
-	registerTransFunction(trans, trans_desc); 
-
+	registerTransFunction(trans, trans_desc);
 }
 
-/* 
+/*
  * is_transpose - This helper function checks if B is the transpose of
  *     A. You can check the correctness of your transpose by calling
  *     it before returning from the transpose function.
@@ -192,9 +263,12 @@ int is_transpose(int M, int N, int A[N][M], int B[M][N])
 {
 	int i, j;
 
-	for (i = 0; i < N; i++) {
-		for (j = 0; j < M; ++j) {
-			if (A[i][j] != B[j][i]) {
+	for (i = 0; i < N; i++)
+	{
+		for (j = 0; j < M; ++j)
+		{
+			if (A[i][j] != B[j][i])
+			{
 				return 0;
 			}
 		}
