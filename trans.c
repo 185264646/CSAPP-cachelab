@@ -49,17 +49,32 @@ void transpose_submit(int M, int N, int A[N][M], int B[M][N])
 	{
 		for (i = 0; i < N; i += 4)
 			for(j = 0; j < N; j += 4)
-				for(line = 0; line < 4; line++)
-				{
-					tmp1 = A[i + line][j];
-					tmp2 = A[i + line][j + 1];
-					tmp3 = A[i + line][j + 2];
-					tmp4 = A[i + line][j + 3];
-					B[j][i + line] = tmp1;
-					B[j + 1][i + line] = tmp2;
-					B[j + 2][i + line] = tmp3;
-					B[j + 3][i + line] = tmp4;
-				}
+				if(i != j)
+					for(line = 0; line < 4; line++)
+					{
+						tmp1 = A[i + line][j];
+						tmp2 = A[i + line][j + 1];
+						tmp3 = A[i + line][j + 2];
+						tmp4 = A[i + line][j + 3];
+						B[j][i + line] = tmp1;
+						B[j + 1][i + line] = tmp2;
+						B[j + 2][i + line] = tmp3;
+						B[j + 3][i + line] = tmp4;
+					}
+		for (i = 0; i < N; i += 4)
+		{
+			for(line = 0; line < 4; line++)
+			{
+				tmp1 = A[i + line][i];
+				tmp2 = A[i + line][i + 1];
+				tmp3 = A[i + line][i + 2];
+				tmp4 = A[i + line][i + 3];
+				B[i][i + line] = tmp1;
+				B[i + 1][i + line] = tmp2;
+				B[i + 2][i + line] = tmp3;
+				B[i + 3][i + line] = tmp4;				
+			}
+		}
 	}
 	else
 	{

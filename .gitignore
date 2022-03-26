@@ -57,3 +57,5 @@ dkms.conf
 /.vscode/
 /csim
 .*
+/tracegen
+/test-trans
