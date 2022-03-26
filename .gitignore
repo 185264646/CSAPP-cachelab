@@ -50,3 +50,10 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# repository specific files
+*.tmp
+*.tar
+/.vscode/
+/csim
+.*
